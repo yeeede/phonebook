@@ -43,45 +43,22 @@ int main(int argc, char *argv[])
     }
 
     /* build the entry */
-#ifndef OPT
     entry *pHead, *e;
     pHead = (entry *) malloc(sizeof(entry));
     printf("size of entry : %lu bytes\n", sizeof(entry));
     e = pHead;
     e->pNext = NULL;
-#elif OPT == 2
-    entry *pHead[HASH_SIZE], *e[HASH_SIZE];
-    printf("size of entry : %lu bytes\n", sizeof(entry));
-    int j = 0;
-    for(j=0; j<HASH_SIZE; j++) {
-        pHead[j] = e[j] = (entry *) malloc(sizeof(entry));
-        pHead[j]->pNext = NULL;
-        pHead[j]->pDetail = NULL;
-    }
-#endif
 
-    /* clean cache */
 #if defined(__GNUC__)
-#ifndef OPT
     __builtin___clear_cache((char *) pHead, (char *) pHead + sizeof(entry));
-#elif OPT == 2
-    __builtin___clear_cache((char *) pHead[HASH_SIZE], (char *) pHead[HASH_SIZE] + sizeof(entry));
 #endif
-#endif
-
     clock_gettime(CLOCK_REALTIME, &start);
-
-    /* append entry */
     while (fgets(line, sizeof(line), fp)) {
         while (line[i] != '\0')
             i++;
         line[i - 1] = '\0';
         i = 0;
-#ifndef OPT
         e = append(line, e);
-#elif OPT == 2
-        append(line, e);
-#endif
     }
     clock_gettime(CLOCK_REALTIME, &end);
     cpu_time1 = diff_in_second(start, end);
@@ -89,37 +66,22 @@ int main(int argc, char *argv[])
     /* close file as soon as possible */
     fclose(fp);
 
+    e = pHead;
+
     /* the givn last name to find */
     char input[MAX_LAST_NAME_SIZE] = "zyxel";
-#ifndef OPT
     e = pHead;
+
     assert(findName(input, e) &&
            "Did you implement findName() in " IMPL "?");
     assert(0 == strcmp(findName(input, e)->lastName, "zyxel"));
-#elif OPT == 2
-    // assign e = pHead;
-    int k = 0;
-    for(k=0; k<HASH_SIZE; k++) {
-        e[k] = pHead[k];
-    }
 
-#endif
-
-
-    /* clean cache */
 #if defined(__GNUC__)
-#ifndef OPT
     __builtin___clear_cache((char *) pHead, (char *) pHead + sizeof(entry));
-#elif OPT == 2
-    __builtin___clear_cache((char *) pHead[HASH_SIZE], (char *) pHead[HASH_SIZE] + sizeof(entry));
 #endif
-#endif
-
-
     /* compute the execution time */
     clock_gettime(CLOCK_REALTIME, &start);
     findName(input, e);
-
     clock_gettime(CLOCK_REALTIME, &end);
     cpu_time2 = diff_in_second(start, end);
 
@@ -130,15 +92,8 @@ int main(int argc, char *argv[])
     printf("execution time of append() : %lf sec\n", cpu_time1);
     printf("execution time of findName() : %lf sec\n", cpu_time2);
 
-#ifndef OPT
     if (pHead->pNext) free(pHead->pNext);
     free(pHead);
-#elif OPT == 2
-    for(j=0; j<HASH_SIZE; j++) {
-        if(pHead[j]->pNext) free(pHead[j]->pNext);
-        free(pHead[j]);
-    }
-#endif
 
     return 0;
 }

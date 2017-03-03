@@ -1,3 +1,6 @@
+[開發紀錄](https://hackmd.io/JwMwxgTAplCGDMBaAJgVjMxAWWqqNgHYQAGbWAIwDYJk7p4AOIA=)
+...still in progress
+
 # Summary
 
 * Understand the impact of cache miss
